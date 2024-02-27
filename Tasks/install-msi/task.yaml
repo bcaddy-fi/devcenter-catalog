@@ -1,10 +1,10 @@
 $schema: "1.0"
 name: install-msi
-command: './main.ps1 -FilePath {{filePath}}'
+command: "./main.ps1 -FilePath {{filePath}}"
 parameters:
   filePath:
-    defaultValue: ''
-    type: 'string'
+    defaultValue: ""
+    type: string
     required: true
     description: | 
       MSI file path absolute path
@@ -13,4 +13,4 @@ documentation:
   examples:
     - name: curl
       parameters:
-        filePath: 'C:\Temp\Everything-1.4.1.1024.x64.msi'
+        filePath: C:\Temp\Everything-1.4.1.1024.x64.msi
