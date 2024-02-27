@@ -1,6 +1,6 @@
 # This is a winget package installation task for Dev Box.
 
-$schema: 1.0
+$schema: "1.0"
 name: winget
 description: Applies a winget configuration to the Dev Box.
 author: Microsoft Corporation
