@@ -92,8 +92,11 @@ function InstallWinGet {
         Install-Module Microsoft.WinGet.Client -Scope AllUsers
 
         pwsh.exe -MTA -Command "Install-Module Microsoft.WinGet.Configuration -AllowPrerelease -Scope AllUsers"
-        pwsh.exe -MTA -Command "Install-Module winget -Scope AllUsers"
-
+        pwsh.exe -MTA -Command "Install-Module Microsoft.Winget.Client -Scope AllUsers"
+        
+        # Need to update the path post install
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
         Write-Host "Done Installing WinGet"
         return $true
     }
@@ -166,6 +169,7 @@ if ($installed_winget) {
 if ($Package) {
     if ($RunAsUser -eq "true") {
         AppendToUserScript "Install-WinGetPackage -Id $($Package)"
+        AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     } else {
         Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package)`""}
     }
