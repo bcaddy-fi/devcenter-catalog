@@ -1,0 +1,5 @@
+name: App-Service-Windows
+summary: App Service (Windows) environment
+description: Deploys a complete App Service environment with a Windows-based Web App.
+runner: ARM
+templatePath: azuredeploy.json
