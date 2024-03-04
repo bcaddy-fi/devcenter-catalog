@@ -15,6 +15,7 @@ $RunAsUserScript = "runAsUser.ps1"
 $CleanupScript = "cleanup.ps1"
 $RunAsUserTask = "DevBoxCustomizations"
 $CleanupTask = "DevBoxCustomizationsCleanup"
+$MinAppInstallerVersion = 
 
 function SetupScheduledTasks {
     Write-Host "Setting up scheduled tasks"
@@ -79,6 +80,19 @@ function InstallPS7 {
     }
     else {
         Write-Host "PowerShell 7 is already installed"
+    }
+}
+
+function Update-AppInstaller {
+    if ([int]((get-AppxPackage -name Microsoft.DesktopAppInstaller).version).Replace(".","") -lt $MinAppInstallerVersion)
+    {
+        Write-Host "Updating App Installer"
+        Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown 
+        Write-Host "Done Updating App Installer"
+    }
+    else
+    {
+        Write-Host "App Installer already installed"
     }
 }
 
