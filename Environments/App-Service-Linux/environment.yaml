@@ -1,0 +1,33 @@
+name: App-Service-Linux
+summary: App Service Linux environment with additional services
+description: Deploys an App Service Linux for Container environment with a SQL Database, a Storage Account, a redis cache and a Key Vault
+runner: ARM
+templatePath: azuredeploy.json
+
+parameters:
+  - id: app_name
+    name: Application Name
+    description: 'Name of the App to deploy'
+    type: string
+    required: true
+  - id: app_serviceplan_SKU
+    name: App Service SKU
+    description: 'App Service Plan SKU'
+    type: string
+    allowed:
+      - "B1"
+      - "B2"
+      - "S1"
+      - "S2"
+      - "P1"
+      - "P2"
+  - id: sql_server_SKU
+    name: SQL Server SKU
+    description: 'SQL Server SKU'
+    type: string
+    allowed:
+      - "S0"
+      - "S1"
+      - "S2"
+      - "S3"
+    required: true

@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+      "_generator": {
+        "name": "bicep",
+        "version": "0.4.451.19169",
+        "templateHash": "4589167010597738390"
+      }
+    },
+    "parameters": {
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "Primary location for all resources"
+        },
+        "minLength": 1
+      },
+      "app_name": {
+        "type": "string",
+        "defaultValue": "[format('app-', substring(uniqueString(resourceGroup().id), 0, 6))]",
+        "metadata": {
+        "description": "Name of the App to deploy."
+        }
+      },
+      "app_serviceplan_SKU": {
+        "type": "string",
+        "defaultValue": "B1",
+        "allowedValues": [
+          "B1",
+          "B2",
+          "S1",
+          "S2",
+          "P1",
+          "P2"
+        ],
+        "metadata": {
+          "description": "App Service Plan SKU"
+        }
+      },
+      "sql_database_SKU": {
+        "type": "string",
+        "defaultValue": "S0",
+        "allowedValues": [
+          "S0",
+          "S1",
+          "S2",
+          "S3"
+        ],
+        "metadata": {
+          "description": "SQL Database SKU"
+        }
+      }
+    },
+    "functions": [],
+    "variables": {
+      "app_serviceplan_name": "[format('{0}-app-serviceplan', parameters('app_name'))]",
+      "app_service_name": "[format('{0}-app-service', parameters('app_name'))]",
+      "sql_server_name": "[format('{0}-app-service', parameters('app_name'))]",
+      "sql_db_name": "[format('{0}-app-service', parameters('app_name'))]",
+      "sql_admin_username": "sqladmin",
+      "sql_admin_password": "P@ssw0rd1234",
+      "keyvault_name": "[format('{0}-keyvault', parameters('app_name'))]",
+      "keyvault_secret_dbconnectionstring": "SQLConnectionString",
+      "keyvault_secret_rediskey": "",
+      "keyvault_secret_storagekey": "",
+      "redis_cache_name": "[format('{0}-redis-cache', parameters('app_name'))]",
+      "storage_account_name": "[format('{0}storage', parameters('app_name'))]"
+    },
+    "resources": []
+  }
