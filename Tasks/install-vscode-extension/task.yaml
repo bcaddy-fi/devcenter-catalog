@@ -1,0 +1,29 @@
+# This is a Visual Studio Code extension installation task for Dev Box.
+$schema: "1.0"
+name: install-vscode-extension
+description: Installs a Visual Studio Code extension
+author: Francesco Sodano (Microsoft)
+command: ".\\Install-VSCodeExtension.ps1 -MarketplaceItemName {{marketplaceItemName}} -RunAsUser {{runAsUser}}"
+parameters:
+  marketplaceItemName:
+    type: string
+    required: true
+    description: |
+      The name of the Visual Studio extension to install.
+      Visit https://marketplace.visualstudio.com to learn
+      more about Visual Studio extensions.
+  runAsUser:
+    default: false
+    type: 'boolean'
+    required: false
+    description: | 
+      Whether to run the installation as the current user or as an administrator. 
+      If set to true, the installation will run during the user's first login to the machine.
+documentation:
+  notes: This task is used to install a Visual Studio Code extension.
+  examples:
+    - name: install-vscode-extension
+      description: Install GitHub Copilot
+      parameters:
+        marketplaceItemName: GitHub.copilotvs
+        runAsUser: true

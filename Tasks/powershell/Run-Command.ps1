@@ -7,26 +7,6 @@ param(
     [string]$RunAsUser
  )
 
-# Install Powershell 7 if not present
- function InstallPS7 {
-    if (!(Get-Command pwsh -ErrorAction SilentlyContinue)) {
-        Write-Host "Installing PowerShell 7"
-        $code = Invoke-RestMethod -Uri https://aka.ms/install-powershell.ps1
-        $null = New-Item -Path function:Install-PowerShell -Value $code
-        WithRetry -ScriptBlock {
-            Install-PowerShell -UseMSI -Quiet
-        } -Maximum 5 -Delay 100
-        # Need to update the path post install
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        Write-Host "Done Installing PowerShell 7"
-    }
-    else {
-        Write-Host "PowerShell 7 is already installed"
-    }
-}
-
-InstallPS7
-
 # Check if workingDirectory is set and not empty and if so, change to it.
 if ($WorkingDirectory -and $WorkingDirectory -ne "") {
     # Check if the working directory exists.
@@ -40,11 +20,21 @@ if ($WorkingDirectory -and $WorkingDirectory -ne "") {
     Set-Location $WorkingDirectory
 }
 
+# Note we're calling powershell.exe directly, instead
+# of running Invoke-Expression, as suggested by
+# https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/avoid-using-invoke-expression?view=powershell-7.3
+# Note that this will run powershell.exe
+# even if the system has pwsh.exe.
 if($RunAsUser -ne "true") {
     Write-Output "Running command as sysadmin: $Command"
-    pwsh.exe -Command $($Command)
+    powershell.exe -Command $($Command)
     $CommandExitCode = $LASTEXITCODE
     Write-Output "Command exited with code $CommandExitCode"
+
+    # Task powershell scripts should always end with an
+    # exit code reported up to the runner agent.
+    # This is how the runner agent knows whether the
+    # command succeeded or failed.
     exit $CommandExitCode
 } else {
     Write-Output "Running command as user: $Command"

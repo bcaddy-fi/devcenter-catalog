@@ -1,0 +1,12 @@
+# This is a prerequirements update task for Dev Box.
+
+$schema: "1.0"
+name: update-prerequirements
+description: Updates customization prerequirements for the DevBox
+author: Francesco Sodano (Microsoft)
+command: ".\\update-prerequirements.ps1"
+documentation:
+  notes: This task is used to update all the DevBox customization prerequirements such as Azure Resource Manager, GitHub CLI, Azure and Azure CLI.
+  examples:
+    - name: update-prerequirements
+      description: Updates customization prerequirements for the DevBox
