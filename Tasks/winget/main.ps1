@@ -170,7 +170,6 @@ function InstallWinGet {
     # if scope is CurrentUser, we need to ensure AppInstaller is installed
     if ($psInstallScope -eq "CurrentUser") {
         # we're not running as system, so install Microsoft.DesktopAppInstaller
-        Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown
         if (!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue)) {
             Write-Host "Installing Microsoft.DesktopAppInstaller"
             # download the DesktopAppInstaller appx package to $env:TEMP
@@ -268,18 +267,21 @@ if ($RunAsUser -eq "true") {
     if ($installed_winget) {
         AppendToUserScript "try {"
         AppendToUserScript "    Write-Host 'Updating prerequisites'"
-        AppendToUserScript "    Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown"
-        AppendToUserScript "    Repair-WinGetPackageManager -Force -Latest"
+        AppendToUserScript "    Start-Job -Name 'DesktopInstaller' -ScriptBlock {Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown}"
+        AppendToUserScript "    Wait-Job -Name 'DesktopInstaller' -Timeout 180"
+        AppendToUserScript "    Start-Job -Name 'Repair' -ScriptBlock {Repair-WinGetPackageManager -Force -Latest}"
+        AppendToUserScript "    Wait-Job -Name 'Repair' -Timeout 180"
         AppendToUserScript "} catch {"
         AppendToUserScript '    Write-Error $_'
         AppendToUserScript "}"
+        AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
 
     # We're running in package mode:
     if ($Package) {
         Write-Host "Appending package install: $($Package)"
         AppendToUserScript "Write-host 'Installing: ' $($Package)"
-        AppendToUserScript "Install-WinGetPackage -Id $($Package) --disable-interactivity --accept-package-agreements --accept-source-agreements"
+        AppendToUserScript "Install-WinGetPackage -Id $($Package)"
         AppendToUserScript "Write-host 'Updating PATH'"
         AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
@@ -302,7 +304,7 @@ else {
     # We're running in package mode:
     if ($Package) {
         Write-Host "Running package install: $($Package)"
-        $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package) --disable-interactivity --accept-package-agreements --accept-source-agreements`""}
+        $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package)`""}
         $process = Get-Process -Id $processCreation.ProcessId
         $handle = $process.Handle # cache process.Handle so ExitCode isn't null when we need it below
         $process.WaitForExit()
