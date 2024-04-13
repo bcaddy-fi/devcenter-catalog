@@ -269,6 +269,7 @@ if ($RunAsUser -eq "true") {
         AppendToUserScript "    Write-Host 'Updating prerequisites'"
         AppendToUserScript "    Start-Job -Name 'DesktopInstaller' -ScriptBlock {Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown}"
         AppendToUserScript "    Wait-Job -Name 'DesktopInstaller' -Timeout 180"
+        AppendToUserScript "    Write-Host 'Repairing WinGet Package Manager for user'"
         AppendToUserScript "    Start-Job -Name 'Repair' -ScriptBlock {Repair-WinGetPackageManager -Force -Latest}"
         AppendToUserScript "    Wait-Job -Name 'Repair' -Timeout 180"
         AppendToUserScript "} catch {"

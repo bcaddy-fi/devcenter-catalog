@@ -6,7 +6,7 @@ description: Updates customization prerequirements for the DevBox
 author: Francesco Sodano (Microsoft)
 command: ".\\update-prerequirements.ps1"
 documentation:
-  notes: This task is used to update all the DevBox customization prerequirements such as Azure Resource Manager, GitHub CLI, Azure and Azure CLI.
+  notes: This task is used to update all the DevBox customization prerequirements such as WinGet Module.
   examples:
     - name: update-prerequirements
       description: Updates customization prerequirements for the DevBox

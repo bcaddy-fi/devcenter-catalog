@@ -1,53 +1,44 @@
 Set-ExecutionPolicy Bypass -Scope Process -Force;
 
 # This function updates the AzureRM module
-function Update-AzureRM {
-    # Check if AzureRM module is installed
-    if (Get-Module -ListAvailable -Name AzureRM) {
-        # Update AzureRM module
-        Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser
-        Write-Host "AzureRM module has been updated successfully."
+function Update-WinGetModule {
+    # Check if WinGet.Client module is installed
+    if ((!Get-Module -ListAvailable -Name Microsoft.WinGet.Client) -or ((Get-Module -ListAvailable -Name Microsoft.WinGet.Client).Version.ToString().Replace(".","") -lt "1710861")){
+        Write-Host "Installing Microsoft.Winget.Client"
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope "AllUsers"
+        Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
+        Install-Module Microsoft.WinGet.Client -Scope "AllUsers"
+        Import-Module -Name Microsoft.WinGet.Client
+        Write-Host "Done Installing Microsoft.Winget.Client"
+        # need to update the path post install
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Start-Job -Name "Update-WinGetModule" -ScriptBlock {
+            Repair-WinGetPackageManager -Latest -AllUsers -Force 
+        }
+        Wait-Job -Name "Update-WinGetModule" -Timeout 180
     }
     else {
-        Write-Host "AzureRM module is not installed. Please install it before running this function."
+        Write-Host "Microsoft.Winget.Client is already installed and updated"
     }
 }
 
-# This function updates the GitHub CLI
-function Update-GitHubCLI {
-    # Check if GitHub CLI is installed
-    if (Get-Command gh -ErrorAction SilentlyContinue) {
-        # Update GitHub CLI
-        gh upgrade --yes
-        Write-Host "GitHub CLI has been updated successfully."
+function InstallPS7 {
+    if (!(Get-Command pwsh -ErrorAction SilentlyContinue)) {
+        Write-Host "Installing PowerShell 7"
+        $code = Invoke-RestMethod -Uri https://aka.ms/install-powershell.ps1
+        $null = New-Item -Path function:Install-PowerShell -Value $code
+        WithRetry -ScriptBlock {
+            Install-PowerShell -UseMSI -Quiet
+        } -Maximum 5 -Delay 100
+        # Need to update the path post install
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Write-Host "Done Installing PowerShell 7"
     }
     else {
-        Write-Host "GitHub CLI is not installed. Please install it before running this function."
+        Write-Host "PowerShell 7 is already installed"
     }
 }
 
-# This function updates the Azure Developer CLI
-function Update-AzureDeveloperCLI {
-    # Check if Azure Developer CLI is installed
-    if (Get-Command azdev -ErrorAction SilentlyContinue) {
-        # Update Azure Developer CLI
-        azdev upgrade --yes
-        Write-Host "Azure Developer CLI has been updated successfully."
-    }
-    else {
-        Write-Host "Azure Developer CLI is not installed. Please install it before running this function."
-    }
-}
-
-# This function updates all the dependencies
-function Update-Dependencies {
-    Update-AzureCLI
-    Update-AzureRM
-    Update-GitHubCLI
-    Update-AzureDeveloperCLI
-}
-
-# The main function that updates all dependencies
-function main {
-    Update-Dependencies
-}
+# Update all prerequisites
+InstallPS7
+Update-WinGetModule

@@ -1,6 +1,7 @@
 $schema: "1.0"
 name: "python-devbox-customization"
 tasks:
+  - name: update-prerequirements
   - name: winget
     parameters:
       package: Git.Git
