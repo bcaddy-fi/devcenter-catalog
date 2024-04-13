@@ -33,13 +33,13 @@ tasks:
         # Install WSL2 distros
         wsl --install -d Ubuntu-22.04;
 
-        # Install VSCode extensions
-        code --install-extension ms-python.python;
-        code --install-extension ms-vscode-remote.vscode-remote-extensionpack;
-        code --install-extension ms-vscode.powershell;
-        code --install-extension donjayamanne.python-environment-manager;
-        code --install-extension github.copilot;
-        code --install-extension github.copilot-chat;
-        code --install-extension github.vscode-pull-request-github;
-        code --install-extension github.remotehub
+        # Install VSCode extensions (for code-insiders)
+        code-insiders --install-extension ms-python.python;
+        code-insiders --install-extension ms-vscode-remote.vscode-remote-extensionpack;
+        code-insiders --install-extension ms-vscode.powershell;
+        code-insiders --install-extension donjayamanne.python-environment-manager;
+        code-insiders --install-extension github.copilot;
+        code-insiders --install-extension github.copilot-chat;
+        code-insiders --install-extension github.vscode-pull-request-github;
+        code-insiders --install-extension github.remotehub
       runAsUser: true

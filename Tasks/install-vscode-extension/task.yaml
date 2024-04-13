@@ -1,29 +1,29 @@
-# This is a Visual Studio Code extension installation task for Dev Box.
+# This is a simple powershell command execution task for Dev Box.
 $schema: "1.0"
 name: install-vscode-extension
-description: Installs a Visual Studio Code extension
-author: Francesco Sodano (Microsoft)
-command: ".\\Install-VSCodeExtension.ps1 -MarketplaceItemName {{marketplaceItemName}} -RunAsUser {{runAsUser}}"
+description: Install a VSCode extension using the code or code-insiders command.
+author: Francesco Sodano
+command: ".\\install-vscode-extension.ps1 -package {{package}} -RunAsUser {{runAsUser}}"
 parameters:
-  marketplaceItemName:
+  package:
     type: string
+    default: ""
     required: true
-    description: |
-      The name of the Visual Studio extension to install.
-      Visit https://marketplace.visualstudio.com to learn
-      more about Visual Studio extensions.
+    description: The package to install.
   runAsUser:
+    type: boolean
     default: false
-    type: 'boolean'
     required: false
-    description: | 
-      Whether to run the installation as the current user or as an administrator. 
-      If set to true, the installation will run during the user's first login to the machine.
+    description: execute the command when the user login the devbox at the first time.
 documentation:
-  notes: This task is used to install a Visual Studio Code extension.
+  notes: This task is used to install a VSCode extension using the code or code-insiders command..
   examples:
     - name: install-vscode-extension
-      description: Install GitHub Copilot
+      description: install ms-python.python extension
       parameters:
-        marketplaceItemName: GitHub.copilotvs
+        package: ms-python.python
+    - name: install-vscode-extension
+      description: install ms-python.python extension as user
+      parameters:
+        command: ms-python.python
         runAsUser: true

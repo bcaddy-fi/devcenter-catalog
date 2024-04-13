@@ -2,7 +2,7 @@
 $schema: "1.0"
 name: winget
 description: Applies a winget configuration to the Dev Box.
-author: Microsoft Corporation
+author: Francesco Sodano
 command: './main.ps1 -ConfigurationFile {{configurationFile}} -DownloadUrl {{downloadUrl}} -Package {{package}} -RunAsUser {{runAsUser}}'
 parameters:
   configurationFile:
