@@ -266,12 +266,9 @@ if ($RunAsUser -eq "true") {
 
     if ($installed_winget) {
         AppendToUserScript "try {"
-        AppendToUserScript "    Write-Host 'Updating prerequisites'"
-        AppendToUserScript "    Start-Job -Name 'DesktopInstaller' -ScriptBlock {Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ForceApplicationShutdown}"
-        AppendToUserScript "    Wait-Job -Name 'DesktopInstaller' -Timeout 180"
         AppendToUserScript "    Write-Host 'Repairing WinGet Package Manager for user'"
-        AppendToUserScript "    Start-Job -Name 'Repair' -ScriptBlock {Repair-WinGetPackageManager -Force -Latest}"
-        AppendToUserScript "    Wait-Job -Name 'Repair' -Timeout 180"
+        AppendToUserScript "    Repair-WinGetPackageManager -Force -Latest"
+        AppendToUserScript "    Start-Sleep -Seconds 180"
         AppendToUserScript "} catch {"
         AppendToUserScript '    Write-Error $_'
         AppendToUserScript "}"
@@ -282,7 +279,7 @@ if ($RunAsUser -eq "true") {
     if ($Package) {
         Write-Host "Appending package install: $($Package)"
         AppendToUserScript "Write-host 'Installing: ' $($Package)"
-        AppendToUserScript "Install-WinGetPackage -Id $($Package)"
+        AppendToUserScript "Install-WinGetPackage -Id $($Package) --accept-source-agreements"
         AppendToUserScript "Write-host 'Updating PATH'"
         AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
@@ -305,7 +302,7 @@ else {
     # We're running in package mode:
     if ($Package) {
         Write-Host "Running package install: $($Package)"
-        $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package)`""}
+        $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package) --accept-source-agreements`""}
         $process = Get-Process -Id $processCreation.ProcessId
         $handle = $process.Handle # cache process.Handle so ExitCode isn't null when we need it below
         $process.WaitForExit()
