@@ -8,6 +8,8 @@ param (
     [Parameter()]
     [string]$Package,
     [Parameter()]
+    [string]$FromMSStore,
+    [Parameter()]
     [string]$RunAsUser
 )
 
@@ -17,6 +19,12 @@ $RunAsUserScript = "runAsUser.ps1"
 $CleanupScript = "cleanup.ps1"
 $RunAsUserTask = "DevBoxCustomizations"
 $CleanupTask = "DevBoxCustomizationsCleanup"
+
+# WinGet pre-requisites
+
+$UriVCLibs = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+$UriUIXaml = "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx"
+$UriWinGet = "https://aka.ms/getwinget"
 
 function SetupScheduledTasks {
     Write-Host "Setting up scheduled tasks"
@@ -267,8 +275,18 @@ if ($RunAsUser -eq "true") {
     if ($installed_winget) {
         AppendToUserScript "try {"
         AppendToUserScript "    Write-Host 'Repairing WinGet Package Manager for user'"
-        AppendToUserScript "    Repair-WinGetPackageManager -Force -Latest"
-        AppendToUserScript "    Start-Sleep -Seconds 180"
+        AppendToUserScript "    if (!(Test-Path -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle)) {"
+        AppendToUserScript "        Invoke-WebRequest -Uri $UriWinGet -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+        AppendToUserScript "        Invoke-WebRequest -Uri $UriVCLibs -OutFile Microsoft.VCLibs.x64.14.00.Desktop.appx"
+        AppendToUserScript "        Invoke-WebRequest -Uri $UriUIXaml -OutFile Microsoft.UI.Xaml.2.8.x64.appx"
+        AppendToUserScript "        Add-AppxPackage Microsoft.VCLibs.x64.14.00.Desktop.appx"
+        AppendToUserScript "        Add-AppxPackage Microsoft.UI.Xaml.2.8.x64.appx"
+        AppendToUserScript "        Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+        AppendToUserScript "        Start-Sleep -Seconds 60"
+        AppendToUserScript "        Write-Host 'WinGet for user repaired'"
+        AppendToUserScript "    }"
+        AppendToUserScript "    else {"
+        AppendToUserScript "        Write-Host 'WinGet for user already installed'"
         AppendToUserScript "} catch {"
         AppendToUserScript '    Write-Error $_'
         AppendToUserScript "}"
@@ -279,7 +297,12 @@ if ($RunAsUser -eq "true") {
     if ($Package) {
         Write-Host "Appending package install: $($Package)"
         AppendToUserScript "Write-host 'Installing: ' $($Package)"
-        AppendToUserScript "Install-WinGetPackage -Id $($Package) --accept-source-agreements"
+        if ($FromMSStore -eq "true") {
+            AppendToUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
+        }
+        else {
+            AppendToUserScript "Install-WinGetPackage -Id $($Package)"
+        }
         AppendToUserScript "Write-host 'Updating PATH'"
         AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
@@ -302,7 +325,12 @@ else {
     # We're running in package mode:
     if ($Package) {
         Write-Host "Running package install: $($Package)"
-        $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package) --accept-source-agreements`""}
+        if ($FromMSStore -eq "true") {
+            $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package) -Source msstore`""}
+        }
+        else {
+            $processCreation = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine="C:\Program Files\PowerShell\7\pwsh.exe -MTA -Command `"Install-WinGetPackage -Id $($Package)`""}
+        }
         $process = Get-Process -Id $processCreation.ProcessId
         $handle = $process.Handle # cache process.Handle so ExitCode isn't null when we need it below
         $process.WaitForExit()
