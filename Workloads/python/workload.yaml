@@ -35,8 +35,11 @@ tasks:
     parameters:
       command: |
         # Install WSL2 distros
-        wsl --install -d Ubuntu-22.04;
-
+        wsl --install -d Ubuntu-22.04
+      runAsUser: true
+  - name: powershell
+    parameters:
+      command: |
         # Install VSCode extensions (for code-insiders)
         code-insiders --install-extension ms-python.python;
         code-insiders --install-extension ms-vscode-remote.vscode-remote-extensionpack;
@@ -46,4 +49,13 @@ tasks:
         code-insiders --install-extension github.copilot-chat;
         code-insiders --install-extension github.vscode-pull-request-github;
         code-insiders --install-extension github.remotehub
+      runAsUser: true
+  - name: powershell
+    parameters:
+      command: |
+        # Create folder for VSCode Projects
+        New-Item -Path "C:\Projects" -ItemType Directory
+        # Use dark theme in Windows
+        Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0 -Type Dword -Force
+        Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme -Value 0 -Type Dword -Force
       runAsUser: true

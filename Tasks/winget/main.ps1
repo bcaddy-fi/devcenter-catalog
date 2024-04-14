@@ -272,27 +272,6 @@ if ($RunAsUser -eq "true") {
 
     Write-Host "Writing commands to user script"
 
-    if ($installed_winget) {
-        AppendToUserScript "try {"
-        AppendToUserScript "    Write-Host 'Repairing WinGet Package Manager for user'"
-        AppendToUserScript "    if (!(Test-Path -Path .\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle)) {"
-        AppendToUserScript "        Invoke-WebRequest -Uri $UriWinGet -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-        AppendToUserScript "        Invoke-WebRequest -Uri $UriVCLibs -OutFile Microsoft.VCLibs.x64.14.00.Desktop.appx"
-        AppendToUserScript "        Invoke-WebRequest -Uri $UriUIXaml -OutFile Microsoft.UI.Xaml.2.8.x64.appx"
-        AppendToUserScript "        Add-AppxPackage Microsoft.VCLibs.x64.14.00.Desktop.appx"
-        AppendToUserScript "        Add-AppxPackage Microsoft.UI.Xaml.2.8.x64.appx"
-        AppendToUserScript "        Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-        AppendToUserScript "        Start-Sleep -Seconds 60"
-        AppendToUserScript "        Write-Host 'WinGet for user repaired'"
-        AppendToUserScript "    }"
-        AppendToUserScript "    else {"
-        AppendToUserScript "        Write-Host 'WinGet for user already installed'"
-        AppendToUserScript "} catch {"
-        AppendToUserScript '    Write-Error $_'
-        AppendToUserScript "}"
-        AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
-    }
-
     # We're running in package mode:
     if ($Package) {
         Write-Host "Appending package install: $($Package)"
