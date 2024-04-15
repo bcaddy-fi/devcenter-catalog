@@ -101,6 +101,7 @@ else {
             Write-Error "Failed to install package. Exit code: $installExitCode"
             exit 1
         }
+        Clear-Variable $handle
     }
     else {
         Write-Error "No package or configuration file specified"

@@ -1,21 +1,21 @@
 # PowerShell Module for DevBox Customization #
 # This module contains functions to customize the DevBox environment.
 function Set-DevBoxCustomizationVariables {
-    $global:CustomizationScriptsDir = "C:\DevBoxCustomizations"
-    $global:LockFile = "lockfile"
-    $global:SetVariablesScript = "setVariables.ps1"
-    $global:RunAsUserScript = "runAsUser.ps1"
-    $global:CleanupScript = "cleanup.ps1"
-    $global:RunAsUserTask = "DevBoxCustomizations"
-    $global:CleanupTask = "DevBoxCustomizationsCleanup"
+    Set-Variable -Name CustomizationScriptsDir -Value "C:\DevBoxCustomizations" -Scope Global
+    Set-Variable -Name LockFile -Value "lockfile" -Scope Global
+    Set-Variable -Name SetVariablesScript -Value "setVariables.ps1" -Scope Global
+    Set-Variable -Name RunAsUserScript -Value "runAsUser.ps1" -Scope Global
+    Set-Variable -Name CleanupScript -Value "cleanup.ps1" -Scope Global
+    Set-Variable -Name RunAsUserTask -Value "DevBoxCustomizations" -Scope Global
+    Set-Variable -Name CleanupTask -Value "DevBoxCustomizationsCleanup" -Scope Global
     
     # Latest version of the WinGet Package Manager and its dependencies
-    $global:UriVCLibs = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
-    $global:UriUIXaml = "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx"
-    $global:UriWinGet = "https://aka.ms/getwinget"
-    $global:VCLibs = "Microsoft.VCLibs.x64.14.00.Desktop.appx"
-    $global:WinGet = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    $global:UIXaml = "Microsoft.UI.Xaml.2.8.x64.appx"
+    Set-Variable -Name UriVCLibs -Value "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" -Scope Global
+    Set-Variable -Name UriUIXaml -Value "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx" -Scope Global
+    Set-Variable -Name UriWinGet -Value "https://aka.ms/getwinget" -Scope Global
+    Set-Variable -Name VCLibs -Value "Microsoft.VCLibs.x64.14.00.Desktop.appx" -Scope Global
+    Set-Variable -Name WinGet -Value "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -Scope Global
+    Set-Variable -Name UIXaml -Value "Microsoft.UI.Xaml.2.8.x64.appx" -Scope Global
 }
 
 function New-DevBoxCustomizationScheduledTasks {
@@ -117,6 +117,7 @@ function Merge-DevBoxCustomizationUserScript {
 
     Add-Content -Path "$($CustomizationScriptsDir)\$($RunAsUserScript)" -Value $Content
 }
+
 function Install-DevBoxCustomizationPS7 {
     if (!(Get-Command pwsh -ErrorAction SilentlyContinue)) {
         Write-Host "Installing PowerShell 7"
