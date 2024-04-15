@@ -117,7 +117,7 @@ function Merge-DevBoxCustomizationUserScript {
 
     Add-Content -Path "$($CustomizationScriptsDir)\$($RunAsUserScript)" -Value $Content
 }
-function Merge-Install-DevBoxCustomizationPS7 {
+function Install-DevBoxCustomizationPS7 {
     if (!(Get-Command pwsh -ErrorAction SilentlyContinue)) {
         Write-Host "Installing PowerShell 7"
         $code = Invoke-RestMethod -Uri https://aka.ms/install-powershell.ps1
