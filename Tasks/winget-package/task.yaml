@@ -1,0 +1,41 @@
+# This is a winget package installation task for Dev Box.
+$schema: "1.0"
+name: winget
+description: Applies a winget package to the Dev Box.
+author: Francesco Sodano
+command: './winget-package.ps1 -Package {{package}} -FromMSStore {{fromMSStore}} -RunAsUser {{runAsUser}} '
+parameters:
+  package:
+    default: ''
+    type: 'string'
+    required: false
+    description: |
+      The ID (not the name) of the package to install.
+  fromMSStore:
+    default: false
+    type: 'boolean'
+    required: false
+    description: | 
+      if true, the package is installed from the Microsoft Store instead of the winget repository.
+      PLEASE NOTE - The MS store package ID could be different from the winget package ID.
+      Microsoft Store packages are only per user, so the runAsUser is required.
+  runAsUser:
+    default: false
+    type: 'boolean'
+    required: false
+    description: | 
+      Whether to run the installation as the current user or as an administrator. 
+      If set to true, the installation will run during the user's first login to the machine.
+documentation:
+  notes: This task allows installing packages via winget.
+  examples:
+    - name: winget
+      description: Install Git via winget
+      parameters:
+        package: Git.Git
+    - name: winget
+      description: Install a package (Python 3.12) via winget from the Microsoft Store (Package ID is 9NCVDN91XZQP)
+      parameters:
+        package: 9NCVDN91XZQP
+        fromMSStore: true
+        runAsUser: true

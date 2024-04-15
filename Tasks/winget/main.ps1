@@ -20,12 +20,6 @@ $CleanupScript = "cleanup.ps1"
 $RunAsUserTask = "DevBoxCustomizations"
 $CleanupTask = "DevBoxCustomizationsCleanup"
 
-# WinGet pre-requisites
-
-$UriVCLibs = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
-$UriUIXaml = "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx"
-$UriWinGet = "https://aka.ms/getwinget"
-
 function SetupScheduledTasks {
     Write-Host "Setting up scheduled tasks"
     if (!(Test-Path -PathType Container $CustomizationScriptsDir)) {
@@ -206,7 +200,7 @@ function InstallWinGet {
 }
 
 InstallPS7
-$installed_winget = InstallWinGet
+InstallWinGet
 
 function AppendToUserScript {
     Param(
@@ -274,14 +268,18 @@ if ($RunAsUser -eq "true") {
 
     # We're running in package mode:
     if ($Package) {
+        # Get the name of the package from the ID
         Write-Host "Appending package install: $($Package)"
-        AppendToUserScript "Write-host 'Installing: ' $($Package)"
+        AppendToUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
+        AppendToUserScript "Write-host 'Installing: ' `$PackageName"
+        # Install the package from the MS Store if specified, otherwise install from the default source
         if ($FromMSStore -eq "true") {
             AppendToUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
         }
         else {
             AppendToUserScript "Install-WinGetPackage -Id $($Package)"
         }
+        # Update the PATH environment variable
         AppendToUserScript "Write-host 'Updating PATH'"
         AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
