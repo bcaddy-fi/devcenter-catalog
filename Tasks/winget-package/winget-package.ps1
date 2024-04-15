@@ -10,12 +10,12 @@ param (
 # Download Dev Box Customizations Support PowerShell module
 # Download the DevBox Customization Support module and import it
 if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/PowerShell/master/src/Microsoft.PowerShell.SDK/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
 }
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
 # Set the Global Variables
-Set-Variables
+DevBoxCustomizations-Set-Variables
 
 
 # ---------------------------------------------- #
@@ -28,16 +28,16 @@ if ($RunAsUser -eq "true") {
     # Download the runAsUser script
     if (!(Test-Path -PathType Leaf ".\runAsUser.ps1")) {
         # Download the runAsUser script
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/PowerShell/master/src/Microsoft.PowerShell.SDK/SupportTools/runAsUser.ps1" -OutFile "runAsUser.ps1"
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/runAsUser.ps1" -OutFile "runAsUser.ps1"
     }
 
     # Download the cleanup script
     if (!(Test-Path -PathType Leaf ".\cleanup.ps1")) {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/PowerShell/master/src/Microsoft.PowerShell.SDK/SupportTools/cleanup.ps1" -OutFile "cleanup.ps1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/cleanup.ps1" -OutFile "cleanup.ps1"
     }
-    
+
     if (!(Test-Path -PathType Leaf "$($CustomizationScriptsDir)\$($LockFile)")) {
-        SetupScheduledTasks
+        DevBoxCustomizations-SetupScheduledTasks
     }
 
     Write-Host "Writing commands to user script"
@@ -45,27 +45,27 @@ if ($RunAsUser -eq "true") {
     if ($Package) {
         # Get the name of the package from the ID
         Write-Host "Appending package install: $($Package)"
-        AppendToUserScript "Write-Host 'Installing Powershell 7'"
-        AppendToUserScript "InstallPS7"
-        AppendToUserScript "Write-Host 'Powershell 7 Installed'"
-        AppendToUserScript "Write-Host 'Installing WinGet Package Manager'"        
-        AppendToUserScript "InstallWinGet"
-        AppendToUserScript "Write-Host 'WinGet Package Manager Installed'"
-        AppendToUserScript "Write-Host 'Installing WinGet Powershell Module'"
-        AppendToUserScript "InstallWinGetModule"
-        AppendToUserScript "Write-Host 'WinGet Powershell Module Installed'"
-        AppendToUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
-        AppendToUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing Powershell 7'"
+        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallPS7"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'Powershell 7 Installed'"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing WinGet Package Manager'"        
+        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallWinGet"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'WinGet Package Manager Installed'"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing WinGet Powershell Module'"
+        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallWinGetModule"
+        DevBoxCustomizations-AppendToUserScript "Write-Host 'WinGet Powershell Module Installed'"
+        DevBoxCustomizations-AppendToUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
+        DevBoxCustomizations-AppendToUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
         # Install the package from the MS Store if specified, otherwise install from the default source
         if ($FromMSStore -eq "true") {
-            AppendToUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
+            DevBoxCustomizations-AppendToUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
         }
         else {
-            AppendToUserScript "Install-WinGetPackage -Id $($Package)"
+            DevBoxCustomizations-AppendToUserScript "Install-WinGetPackage -Id $($Package)"
         }
         # Update the PATH environment variable
-        AppendToUserScript "Write-host 'Updating PATH'"
-        AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
+        DevBoxCustomizations-AppendToUserScript "Write-host 'Updating PATH'"
+        DevBoxCustomizations-AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
     else {
         Write-Error "No package or configuration file specified"
@@ -78,11 +78,11 @@ else {
     Write-Host "Running in the provisioning context"
     # Install PowerShell 7, WinGet, and the WinGet PowerShell module
     Write-Host "Installing PowerShell 7"
-    InstallPS7
+    DevBoxCustomizations-InstallPS7
     Write-Host "Installing WinGet Package Manager"
-    InstallWinGet
+    DevBoxCustomizations-InstallWinGet
     Write-Host "Installing WinGet PowerShell Module"
-    InstallWinGetModule
+    DevBoxCustomizations-InstallWinGetModule
 
     # We're running in package mode:
     if ($Package) {
