@@ -15,7 +15,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devce
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
 # Set the Global Variables
-DevBoxCustomizations-SetVariables
+Set-DevBoxCustomizationVariables
 
 
 # ---------------------------------------------- #
@@ -37,7 +37,7 @@ if ($RunAsUser -eq "true") {
     }
 
     if (!(Test-Path -PathType Leaf "$($CustomizationScriptsDir)\$($LockFile)")) {
-        DevBoxCustomizations-SetupScheduledTasks
+        New-DevBoxCustomizationScheduledTasks
     }
 
     Write-Host "Writing commands to user script"
@@ -45,27 +45,27 @@ if ($RunAsUser -eq "true") {
     if ($Package) {
         # Get the name of the package from the ID
         Write-Host "Appending package install: $($Package)"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing Powershell 7'"
-        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallPS7"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'Powershell 7 Installed'"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing WinGet Package Manager'"        
-        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallWinGet"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'WinGet Package Manager Installed'"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'Installing WinGet Powershell Module'"
-        DevBoxCustomizations-AppendToUserScript "DevBoxCustomizations-InstallWinGetModule"
-        DevBoxCustomizations-AppendToUserScript "Write-Host 'WinGet Powershell Module Installed'"
-        DevBoxCustomizations-AppendToUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
-        DevBoxCustomizations-AppendToUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Powershell 7'"
+        Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationPS7"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing WinGet Package Manager'"        
+        Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationWinGet"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'WinGet Package Manager Installed'"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing WinGet Powershell Module'"
+        Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationWinGetModule"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'WinGet Powershell Module Installed'"
+        Merge-DevBoxCustomizationUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
+        Merge-DevBoxCustomizationUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
         # Install the package from the MS Store if specified, otherwise install from the default source
         if ($FromMSStore -eq "true") {
-            DevBoxCustomizations-AppendToUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
+            Merge-DevBoxCustomizationUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
         }
         else {
-            DevBoxCustomizations-AppendToUserScript "Install-WinGetPackage -Id $($Package)"
+            Merge-DevBoxCustomizationUserScript "Install-WinGetPackage -Id $($Package)"
         }
         # Update the PATH environment variable
-        DevBoxCustomizations-AppendToUserScript "Write-host 'Updating PATH'"
-        DevBoxCustomizations-AppendToUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
+        Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
+        Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
     else {
         Write-Error "No package or configuration file specified"
@@ -78,11 +78,11 @@ else {
     Write-Host "Running in the provisioning context"
     # Install PowerShell 7, WinGet, and the WinGet PowerShell module
     Write-Host "Installing PowerShell 7"
-    DevBoxCustomizations-InstallPS7
+    Install-DevBoxCustomizationPS7
     Write-Host "Installing WinGet Package Manager"
-    DevBoxCustomizations-InstallWinGet
+    Install-DevBoxCustomizationWinGet
     Write-Host "Installing WinGet PowerShell Module"
-    DevBoxCustomizations-InstallWinGetModule
+    Install-DevBoxCustomizationWinGetModule
 
     # We're running in package mode:
     if ($Package) {

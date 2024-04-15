@@ -1,6 +1,6 @@
 # PowerShell Module for DevBox Customization #
 # This module contains functions to customize the DevBox environment.
-function DevBoxCustomizations-SetVariables {
+function Set-DevBoxCustomizationVariables {
     $global:CustomizationScriptsDir = "C:\DevBoxCustomizations"
     $global:LockFile = "lockfile"
     $global:SetVariablesScript = "setVariables.ps1"
@@ -18,7 +18,7 @@ function DevBoxCustomizations-SetVariables {
     $global:UIXaml = "Microsoft.UI.Xaml.2.8.x64.appx"
 }
 
-function DevBoxCustomizations-SetupScheduledTasks {
+function New-DevBoxCustomizationScheduledTasks {
     Write-Host "Setting up scheduled tasks"
     if (!(Test-Path -PathType Container $CustomizationScriptsDir)) {
         New-Item -Path $CustomizationScriptsDir -ItemType Directory
@@ -76,7 +76,7 @@ function DevBoxCustomizations-SetupScheduledTasks {
     Write-Host "Done setting up scheduled tasks"
 }
 
-function DevBoxCustomizations-WithRetry {
+function Set-DevBoxCustomizationWithRetry {
     Param(
         [Parameter(Position=0, Mandatory=$true)]
         [scriptblock]$ScriptBlock,
@@ -109,7 +109,7 @@ function DevBoxCustomizations-WithRetry {
     throw $lastException
 }
 
-function DevBoxCustomizations-AppendToUserScript {
+function Merge-DevBoxCustomizationUserScript {
     Param(
         [Parameter(Position=0, Mandatory=$true)]
         [string]$Content
@@ -117,12 +117,12 @@ function DevBoxCustomizations-AppendToUserScript {
 
     Add-Content -Path "$($CustomizationScriptsDir)\$($RunAsUserScript)" -Value $Content
 }
-function DevBoxCustomizations-InstallPS7 {
+function Merge-Install-DevBoxCustomizationPS7 {
     if (!(Get-Command pwsh -ErrorAction SilentlyContinue)) {
         Write-Host "Installing PowerShell 7"
         $code = Invoke-RestMethod -Uri https://aka.ms/install-powershell.ps1
         $null = New-Item -Path function:Install-PowerShell -Value $code
-        WithRetry -ScriptBlock {
+        Set-DevBoxCustomizationWithRetry -ScriptBlock {
             Install-PowerShell -UseMSI -Quiet
         } -Maximum 5 -Delay 100
         # Need to update the path post install
@@ -134,7 +134,7 @@ function DevBoxCustomizations-InstallPS7 {
     }
 }
 
-function DevBoxCustomizations-InstallWinGet {
+function Install-DevBoxCustomizationWinGet {
     # Install the WinGet Package Manager
     if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "122108610")) {
         try {
@@ -159,7 +159,7 @@ function DevBoxCustomizations-InstallWinGet {
     }
 }
 
-function DevBoxCustomizations-InstallWinGetModule {
+function Install-DevBoxCustomizationWinGetModule {
     # Check in the current user is SYSTEM
     $psInstallScope = "CurrentUser"
     $whoami = whoami.exe
