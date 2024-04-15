@@ -1,6 +1,6 @@
 # PowerShell Module for DevBox Customization #
 # This module contains functions to customize the DevBox environment.
-function DevBoxCustomizations-Set-Variables {
+function DevBoxCustomizations-SetVariables {
     $global:CustomizationScriptsDir = "C:\DevBoxCustomizations"
     $global:LockFile = "lockfile"
     $global:SetVariablesScript = "setVariables.ps1"

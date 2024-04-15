@@ -1,10 +1,12 @@
-$CustomizationScriptsDir = "C:\DevBoxCustomizations"
-$LockFile = "lockfile"
-$SetVariablesScript = "setVariables.ps1"
-$RunAsUserScript = "runAsUser.ps1"
-$CleanupScript = "cleanup.ps1"
-$RunAsUserTask = "DevBoxCustomizations"
-$CleanupTask = "DevBoxCustomizationsCleanup"
+# Download Dev Box Customizations Support PowerShell module
+# Download the DevBox Customization Support module and import it
+if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/PowerShell/master/src/Microsoft.PowerShell.SDK/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
+    }
+Import-Module -Name ".\DevBox.Customization.Support.psm1"
+
+# Set the Global Variables
+DevBoxCustomizations-SetVariables
 
 if (!(Test-Path "$($CustomizationScriptsDir)\$($LockFile)")) {
     Unregister-ScheduledTask -TaskName $RunAsUserTask -Confirm:$false

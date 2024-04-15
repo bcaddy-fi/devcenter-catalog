@@ -9,7 +9,7 @@ if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
 # Set the Global Variables
-Set-Variables
+DevBoxCustomizations-SetVariables
 
 Write-Host "Microsoft Dev Box - Customizations"
 Write-Host "----------------------------------"

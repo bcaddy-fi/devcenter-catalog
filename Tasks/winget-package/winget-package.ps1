@@ -15,7 +15,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devce
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
 # Set the Global Variables
-DevBoxCustomizations-Set-Variables
+DevBoxCustomizations-SetVariables
 
 
 # ---------------------------------------------- #
