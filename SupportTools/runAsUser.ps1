@@ -4,7 +4,7 @@ Start-Transcript -Path $env:TEMP\scheduled-task-customization.log -Append -Inclu
 # Download Dev Box Customizations Support PowerShell module
 # Download the DevBox Customization Support module and import it
 if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/microsoft/PowerShell/master/src/Microsoft.PowerShell.SDK/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
     }
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
