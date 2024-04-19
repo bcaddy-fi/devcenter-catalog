@@ -1,0 +1,16 @@
+$schema: "1.0"
+name: "python-devbox-customization"
+tasks:
+  - name: winget-package
+    parameters:
+      package: Git.Git
+  - name: winget-package
+    parameters:
+      package: XP8LFCZM790F6B
+      fromMSStore: true
+      runAsUser: true
+  - name: winget-package
+    parameters:
+      package: 9PJPW5LDXLZ5
+      fromMSStore: true
+      runAsUser: true

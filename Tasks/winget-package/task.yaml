@@ -1,9 +1,9 @@
 # This is a winget package installation task for Dev Box.
 $schema: "1.0"
-name: winget
+name: winget-package
 description: Applies a winget package to the Dev Box.
 author: Francesco Sodano
-command: './winget-package.ps1 -Package {{package}} -FromMSStore {{fromMSStore}} -RunAsUser {{runAsUser}} '
+command: './winget-package.ps1 -Package {{package}} -FromMSStore {{fromMSStore}} -RunAsUser {{runAsUser}}'
 parameters:
   package:
     default: ''
@@ -29,11 +29,11 @@ parameters:
 documentation:
   notes: This task allows installing packages via winget.
   examples:
-    - name: winget
+    - name: winget-package
       description: Install Git via winget
       parameters:
         package: Git.Git
-    - name: winget
+    - name: winget-package
       description: Install a package (Python 3.12) via winget from the Microsoft Store (Package ID is 9NCVDN91XZQP)
       parameters:
         package: 9NCVDN91XZQP
