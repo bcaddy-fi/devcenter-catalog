@@ -1,6 +1,6 @@
 param(
     [Parameter()]
-    [string]$Package,
+    [string]$Extension,
     [Parameter()]
     [string]$RunAsUser
  )
@@ -24,11 +24,11 @@ $codeinsidercommand = "code-insiders"
 
 if (Get-Command -Name $codecommand -ErrorAction SilentlyContinue) {
     Write-Output "Visual Studio Code detected."
-    $Command = "$codecommand --install-extension $Package"
+    $Command = "$codecommand --install-extension $Extension"
 } 
 elseif (Get-Command -Name $code$codeinsidercommand -ErrorAction SilentlyContinue){
     Write-Output "Visual Studio Code Insiders detected."
-    $Command = "$codeinsidercommand --install-extension $Package"
+    $Command = "$codeinsidercommand --install-extension $Extension"
 }
 else {
     Write-Output "VS Code or VS Code Insiders NOT detected."
@@ -56,14 +56,14 @@ if ($RunAsUser -eq "true") {
 
     Write-Host "Writing commands to user script"
 
-    if ($Package) {
+    if ($Extension) {
         # Get the name of the package from the ID
-        Write-Host "Appending package install: $($Package)"
+        Write-Host "Appending package install: $($Extension)"
         Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Powershell 7'"
         Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationPS7"
         Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
         # Install the VS Code Extension
-        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Visual Studio Code Extension: ' $($Package)"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Visual Studio Code Extension: ' $($Extension)"
         Merge-DevBoxCustomizationUserScript "$($Command)"
         # Update the PATH environment variable
         Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"

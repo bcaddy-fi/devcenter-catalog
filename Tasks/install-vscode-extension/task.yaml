@@ -3,13 +3,13 @@ $schema: "1.0"
 name: install-vscode-extension
 description: Install a VSCode extension using the code or code-insiders command.
 author: Francesco Sodano
-command: ".\\install-vscode-extension.ps1 -package {{package}} -RunAsUser {{runAsUser}}"
+command: ".\\install-vscode-extension.ps1 -Extension {{extension}} -RunAsUser {{runAsUser}}"
 parameters:
-  package:
+  extension:
     type: string
     default: ""
     required: true
-    description: The package to install.
+    description: The extension to install.
   runAsUser:
     type: boolean
     default: false
@@ -21,9 +21,9 @@ documentation:
     - name: install-vscode-extension
       description: install ms-python.python extension
       parameters:
-        package: ms-python.python
+        extension: ms-python.python
     - name: install-vscode-extension
       description: install ms-python.python extension as user
       parameters:
-        command: ms-python.python
+        extension: ms-python.python
         runAsUser: true
