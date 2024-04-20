@@ -14,3 +14,13 @@ tasks:
       package: 9PJPW5LDXLZ5
       fromMSStore: true
       runAsUser: true
+  - name: powershell
+    parameters:
+      command: |
+        # Install VSCode extensions (for code-insiders)
+        code-insiders --install-extension ms-python.python
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: donjayamanne.python-environment-manager
+      runAsUser: true
