@@ -6,7 +6,7 @@ if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
 Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
 # Set the Global Variables
-DevBoxCustomizations-SetVariables
+Set-DevBoxCustomizationVariables
 
 if (!(Test-Path "$($CustomizationScriptsDir)\$($LockFile)")) {
     Unregister-ScheduledTask -TaskName $RunAsUserTask -Confirm:$false
