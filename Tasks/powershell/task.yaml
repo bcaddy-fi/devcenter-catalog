@@ -1,9 +1,8 @@
-# This is a simple powershell command execution task for Dev Box.
 $schema: "1.0"
 name: powershell
 description: Execute a powershell command.
-author: Microsoft Corporation
-command: ".\\Run-Command.ps1 -Command {{command}} -WorkingDirectory {{workingDirectory}} -RunAsUser {{runAsUser}}"
+author: Francesco Sodano
+command: ".\\Run-Command.ps1 -Command {{command}} -WorkingDirectory {{workingDirectory}} -PS7 {{PS7}} -RunAsUser {{runAsUser}}"
 parameters:
   command:
     type: string
@@ -15,6 +14,11 @@ parameters:
     default: ""
     required: false
     description: The working directory to execute the command in.
+  PS7:
+    type: boolean
+    default: false
+    required: false
+    description: execute the command using PowerShell 7.
   runAsUser:
     type: boolean
     default: false
@@ -32,3 +36,13 @@ documentation:
       parameters:
         command: "./script.ps1"
         workingDirectory: C:\\provisioning\\temp
+    - name: powershell
+      description: run script with PowerShell 7
+      parameters:
+        command: "Write-Host 'hello, world!'"
+        PS7: true
+    - name: powershell
+      description: run script when the user login the devbox at the first time
+      parameters:
+        command: "Write-Host 'hello, world!'"
+        runAsUser: true

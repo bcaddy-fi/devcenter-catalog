@@ -5,151 +5,79 @@ param(
     [string]$RunAsUser
  )
 
-$WorkingDirectory = ""
-# Check if workingDirectory is set and not empty and if so, change to it.
-if ($WorkingDirectory -and $WorkingDirectory -ne "") {
-    # Check if the working directory exists.
-    if (-not (Test-Path $WorkingDirectory)) {
-        # Create the working directory if it does not exist.
-        Write-Output "Creating working directory $WorkingDirectory"
-        New-Item -ItemType Directory -Force -Path $WorkingDirectory
+# Download Dev Box Customizations Support PowerShell module
+# Download the DevBox Customization Support module and import it
+ if (!(Test-Path -PathType Leaf ".\DevBox.Customization.Support.psm1")) {
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/DevBox.Customization.Support.psm1" -OutFile "DevBox.Customization.Support.psm1"
     }
+Import-Module -Name ".\DevBox.Customization.Support.psm1"
 
-    Write-Output "Changing to working directory $WorkingDirectory"
-    Set-Location $WorkingDirectory
-}
+# Set the Global Variables
+Set-DevBoxCustomizationVariables
 
-# Check if VS Code or VS Code Insiders is installed
+# ---------------------------------------------- #
+# Main Script----------------------------------- #
+# ---------------------------------------------- #
 
 $codecommand = "code"
 $codeinsidercommand = "code-insiders"
 
 if (Get-Command -Name $codecommand -ErrorAction SilentlyContinue) {
-    Write-Output "Visual Studio Code is installed."
+    Write-Output "Visual Studio Code detected."
     $Command = "$codecommand --install-extension $Package"
 } 
 elseif (Get-Command -Name $code$codeinsidercommand -ErrorAction SilentlyContinue){
-    Write-Output "Visual Studio Code Insiders is not installed."
+    Write-Output "Visual Studio Code Insiders detected."
     $Command = "$codeinsidercommand --install-extension $Package"
 }
 else {
-    Write-Output "VS Code or VS Code Insiders is not installed."
+    Write-Output "VS Code or VS Code Insiders NOT detected."
+    exit 1
 }
 
-# Note we're calling powershell.exe directly, instead
-# of running Invoke-Expression, as suggested by
-# https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/avoid-using-invoke-expression?view=powershell-7.3
-# Note that this will run powershell.exe
-# even if the system has pwsh.exe.
-if($RunAsUser -ne "true") {
-    Write-Output "Running command as sysadmin: $Command"
-    powershell.exe -Command $($Command)
-    $CommandExitCode = $LASTEXITCODE
-    Write-Output "Command exited with code $CommandExitCode"
-
-    # Task powershell scripts should always end with an
-    # exit code reported up to the runner agent.
-    # This is how the runner agent knows whether the
-    # command succeeded or failed.
-    exit $CommandExitCode
-} else {
-    Write-Output "Running command as user: $Command"
-
-    # Run the command as user, it will write the command to a powershell script and start a shedule task to run this script when the user login devbox
-    $REMOVE_LOCKFILE_LAST_LINE = @'
-Remove-Item -Path "$($CustomizationScriptsDir)\$($LockFile)" -Force
-'@
-
-    # This function will remove the last line of the file if it is the same as $REMOVE_LOCKFILE_LAST_LINE
-    function removeLastLinewithRemoveItem {
-        param(
-            [string]$Path
-        )
-    
-        $lines = (Get-Content -Path $Path).TrimEnd()
-        $lastLine = $lines[$lines.Length - 1]
-        if($lastLine.TrimEnd() -eq $REMOVE_LOCKFILE_LAST_LINE.TrimEnd()){
-            $lines = $lines[0..($lines.Length - 2)]
-            $lines | Set-Content -Path $Path
-        }
+# We're running as user via scheduled task:
+if ($RunAsUser -eq "true") {
+    Write-Host "Running as user via scheduled task"
+    # Download the runAsUser script
+    if (!(Test-Path -PathType Leaf ".\runAsUser.ps1")) {
+        # Download the runAsUser script
+        Invoke-WebRequest -Uri $UriRunAsUser -OutFile "runAsUser.ps1"
     }
 
-    # This function will setup the scheduled tasks to run the script when the user login devbox
-    function SetupScheduledTasks {
-        param(
-            [string]$RunAsUserScriptPath,
-            [string]$lockFileFullPath,
-            [string]$cleanupfullPath
-        )
-
-        $RunAsUserTask = "DevBoxCustomizations"
-        $CleanupTask = "DevBoxCustomizationsCleanup"
-
-        if(!(Test-Path -Path $lockFileFullPath)){
-            New-Item -Path $lockFileFullPath -ItemType File
-        }
-    
-        $ShedService = New-Object -comobject "Schedule.Service"
-        $ShedService.Connect()
-    
-        # Schedule the cleanup script to run every minute as SYSTEM
-        $Task = $ShedService.NewTask(0)
-        $Task.RegistrationInfo.Description = "Dev Box Customizations Cleanup"
-        $Task.Settings.Enabled = $true
-        $Task.Settings.AllowDemandStart = $false
-    
-        $Trigger = $Task.Triggers.Create(9)
-        $Trigger.Enabled = $true
-        $Trigger.Repetition.Interval="PT1M"
-    
-        $Action = $Task.Actions.Create(0)
-        $Action.Path = "PowerShell.exe"
-        $Action.Arguments = "Set-ExecutionPolicy Bypass -Scope Process -Force; $cleanupfullPath"
-    
-        $TaskFolder = $ShedService.GetFolder("\")
-        $TaskFolder.RegisterTaskDefinition("$($CleanupTask)", $Task , 6, "NT AUTHORITY\SYSTEM", $null, 5)
-    
-        # Schedule the script to be run in the user context on login
-        $Task = $ShedService.NewTask(0)
-        $Task.RegistrationInfo.Description = "Dev Box Customizations"
-        $Task.Settings.Enabled = $true
-        $Task.Settings.AllowDemandStart = $false
-        $Task.Principal.RunLevel = 1
-    
-        $Trigger = $Task.Triggers.Create(9)
-        $Trigger.Enabled = $true
-    
-        $Action = $Task.Actions.Create(0)
-        $Action.Path = "C:\Program Files\PowerShell\7\pwsh.exe"
-        $Action.Arguments = "-MTA -Command $RunAsUserScriptPath"
-    
-        $TaskFolder = $ShedService.GetFolder("\")
-        $TaskFolder.RegisterTaskDefinition("$($RunAsUserTask)", $Task , 6, "Users", $null, 4)
-    }
-    
-    $CustomizationScriptsDir = "C:\DevBoxCustomizations"
-    $LockFile = "lockfile"
-    $RunAsUserAppendScript = "runAsUser.ps1"
-    $CleanupScript = "cleanup.ps1"
-
-    $RunAsUserScriptPath = "$($CustomizationScriptsDir)\$($RunAsUserAppendScript)"
-    if(!(Test-Path -Path $CustomizationScriptsDir)){
-        New-Item -Path $CustomizationScriptsDir -ItemType Directory
-        Copy-Item -Path $RunAsUserAppendScript -Destination $RunAsUserScriptPath -Force
+    # Download the cleanup script
+    if (!(Test-Path -PathType Leaf ".\cleanup.ps1")) {
+    Invoke-WebRequest -Uri $UriCleanup -OutFile "cleanup.ps1"
     }
 
-    $lockFileFullPath = "$($CustomizationScriptsDir)\$($LockFile)"
-    $cleanupfullPath = "$($CustomizationScriptsDir)\$($CleanupScript)"
-
-    if(![string]::IsNullOrEmpty($Command)){
-        removeLastLinewithRemoveItem($RunAsUserScriptPath)
-        Add-Content -Path $RunAsUserScriptPath -Value $Command
-        Add-Content -Path $RunAsUserScriptPath -Value $REMOVE_LOCKFILE_LAST_LINE
+    # Check if the Scheduler tasks are already set up
+    if (!(Test-Path -PathType Leaf "$($CustomizationScriptsDir)\$($LockFile)")) {
+        New-DevBoxCustomizationScheduledTasks
     }
 
-    Copy-Item "./$($CleanupScript)" -Destination $CustomizationScriptsDir -Force
+    Write-Host "Writing commands to user script"
 
-    if (!(Test-Path -PathType Leaf "$lockFileFullPath")) {
-        SetupScheduledTasks $RunAsUserScriptPath $lockFileFullPath $cleanupfullPath
+    if ($Package) {
+        # Get the name of the package from the ID
+        Write-Host "Appending package install: $($Package)"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Powershell 7'"
+        Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationPS7"
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
+        # Install the VS Code Extension
+        Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Visual Studio Code Extension: ' $($Package)"
+        Merge-DevBoxCustomizationUserScript "$($Command)"
+        # Update the PATH environment variable
+        Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
+        Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
+    }
+    else {
+        Write-Error "No package or configuration file specified"
+        exit 1
     }
 }
+
+# We're running in the provisioning context:
+else {
+    Write-Host "Install VS Code Extension is not intended to run in the provisioning context."
+    exit 1
+}
+exit 0

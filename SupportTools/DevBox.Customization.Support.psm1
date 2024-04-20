@@ -3,11 +3,14 @@
 function Set-DevBoxCustomizationVariables {
     Set-Variable -Name CustomizationScriptsDir -Value "C:\DevBoxCustomizations" -Scope Global
     Set-Variable -Name LockFile -Value "lockfile" -Scope Global
-    Set-Variable -Name SetVariablesScript -Value "setVariables.ps1" -Scope Global
     Set-Variable -Name RunAsUserScript -Value "runAsUser.ps1" -Scope Global
     Set-Variable -Name CleanupScript -Value "cleanup.ps1" -Scope Global
     Set-Variable -Name RunAsUserTask -Value "DevBoxCustomizations" -Scope Global
     Set-Variable -Name CleanupTask -Value "DevBoxCustomizationsCleanup" -Scope Global
+
+    # URLs for cleanup and RunasUser scripts
+    Set-Variable -Name UriRunAsUser -Value "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/runAsUser.ps1" -Scope Global
+    Set-Variable -Name UriCleanup -Value "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/cleanup.ps1" -Scope Global
     
     # Latest version of the WinGet Package Manager and its dependencies
     Set-Variable -Name UriVCLibs -Value "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" -Scope Global

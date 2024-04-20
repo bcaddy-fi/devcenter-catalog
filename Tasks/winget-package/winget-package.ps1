@@ -17,7 +17,6 @@ Import-Module -Name ".\DevBox.Customization.Support.psm1"
 # Set the Global Variables
 Set-DevBoxCustomizationVariables
 
-
 # ---------------------------------------------- #
 # Main Script----------------------------------- #
 # ---------------------------------------------- #
@@ -28,14 +27,15 @@ if ($RunAsUser -eq "true") {
     # Download the runAsUser script
     if (!(Test-Path -PathType Leaf ".\runAsUser.ps1")) {
         # Download the runAsUser script
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/runAsUser.ps1" -OutFile "runAsUser.ps1"
+        Invoke-WebRequest -Uri $UriRunAsUser -OutFile "runAsUser.ps1"
     }
 
     # Download the cleanup script
     if (!(Test-Path -PathType Leaf ".\cleanup.ps1")) {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/francesco-sodano/devcenter-catalog/main/SupportTools/cleanup.ps1" -OutFile "cleanup.ps1"
+    Invoke-WebRequest -Uri $UriCleanup -OutFile "cleanup.ps1"
     }
 
+    # Check if the Scheduler tasks are already set up
     if (!(Test-Path -PathType Leaf "$($CustomizationScriptsDir)\$($LockFile)")) {
         New-DevBoxCustomizationScheduledTasks
     }
@@ -43,17 +43,23 @@ if ($RunAsUser -eq "true") {
     Write-Host "Writing commands to user script"
 
     if ($Package) {
-        # Get the name of the package from the ID
         Write-Host "Appending package install: $($Package)"
+        # Install PowerShell 7
         Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Powershell 7'"
         Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationPS7"
         Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
+        # Install WinGet Package Manager
         Merge-DevBoxCustomizationUserScript "Write-Host 'Installing WinGet Package Manager'"        
         Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationWinGet"
         Merge-DevBoxCustomizationUserScript "Write-Host 'WinGet Package Manager Installed'"
+        # Install WinGet PowerShell Module
         Merge-DevBoxCustomizationUserScript "Write-Host 'Installing WinGet Powershell Module'"
         Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationWinGetModule"
         Merge-DevBoxCustomizationUserScript "Write-Host 'WinGet Powershell Module Installed'"
+        # Update the PATH environment variable
+        Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
+        Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
+        # Get the name of the package from the ID
         Merge-DevBoxCustomizationUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
         Merge-DevBoxCustomizationUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
         # Install the package from the MS Store if specified, otherwise install from the default source
@@ -68,7 +74,7 @@ if ($RunAsUser -eq "true") {
         Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
     }
     else {
-        Write-Error "No package or configuration file specified"
+        Write-Error "No package specified"
         exit 1
     }
 }
@@ -104,7 +110,7 @@ else {
         Clear-Variable $handle
     }
     else {
-        Write-Error "No package or configuration file specified"
+        Write-Error "No package specified"
         exit 1
     }
 }

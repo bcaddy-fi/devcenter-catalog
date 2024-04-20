@@ -1,0 +1,26 @@
+$schema: "1.0"
+name: install-wsl2
+description: Install WSL2 on Windows 11
+author: Francesco Sodano
+command: ".\\install-wsl2.ps1 -Distribution {{distribution}}"
+parameters:
+  distribution:
+    type: string
+    default: ""
+    required: true
+    description: The required distribution to be installed. if not specified Ubuntu will be installed
+documentation:
+  notes: This task is used to install WSL2 on Windows 11.
+  examples:
+    - name: install-wsl2
+      description: install WSL2 with Ubuntu
+      parameters:
+        distribution: ""
+    - name: install-wsl2
+      description: Install WSL2 with Ubuntu 22.04
+      parameters:
+        distribution: "Ubuntu-22.04"
+    - name: install-wsl2
+      description: Install WSL2 with Debian
+      parameters:
+        distribution: "Debian"
