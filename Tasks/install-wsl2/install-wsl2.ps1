@@ -36,17 +36,19 @@ Install-DevBoxCustomizationPS7
 # Main Script----------------------------------- #
 # ---------------------------------------------- #
 
+# Install the operating system features required to run WSL2 - installed as SYSTEM
+Write-Host "Installing WSL2 prerequirements"
+Import-Module -Name "DISM"
+Enable-WindowsOptionalFeature -online -FeatureName "Microsoft-Windows-Subsystem-Linux" -norestart
+Enable-WindowsOptionalFeature -online -FeatureName "VirtualMachinePlatform" -norestart
+wsl.exe --install --no-distribution
+Write-Host "WSL2 prerequirements installed"
+
 # Check if the distribution is in the list of supported distributions
 if ($Distributions -notcontains $Ditribution) {
     Write-Host "The distribution $Ditribution is not supported"
     exit 1
 }
-
-# Install the operating system features required to run WSL2 - installed as SYSTEM
-Write-Host "Installing WSL2"
-Install-WindowsFeature -Name VirtualMachinePlatform -Online -NoRestart
-Install-WindowsFeature -Name Microsoft-Windows-Subsystem-Linux -Online -NoRestart
-Write-Host "WSL2 Installed"
 
 # Install the WSL2 distribution - Installed as User
 
@@ -75,8 +77,10 @@ Merge-DevBoxCustomizationUserScript "Write-Host 'Installing Powershell 7'"
 Merge-DevBoxCustomizationUserScript "Install-DevBoxCustomizationPS7"
 Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
 # Run the WSL2 installation command
+Merge-DevBoxCustomizationUserScript "Write-Host 'Install WSL2'"
 Merge-DevBoxCustomizationUserScript "pwsh.exe -Command 'Set-ExecutionPolicy Bypass -Scope Process -Force'"
 Merge-DevBoxCustomizationUserScript "wsl --install -d $Ditribution"
+Merge-DevBoxCustomizationUserScript "Write-Host 'WSL2 Installed'"
 # Update the PATH environment variable
 Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
 Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'

@@ -11,26 +11,11 @@ tasks:
       runAsUser: true
   - name: winget-package
     parameters:
-      package: 9PJPW5LDXLZ5
-      fromMSStore: true
-      runAsUser: true
-  - name: winget-package
-    parameters:
-      package: 9NRWMJP3717K
-      fromMSStore: true
-      runAsUser: true
-  - name: winget-package
-    parameters:
-      package: 9NCVDN91XZQP
-      fromMSStore: true
+      package: Microsoft.DotNet.SDK.8
       runAsUser: true
   - name: install-wsl2
     parameters:
-      distribution: Ubuntu-22.04
-  - name: install-vscode-extension
-    parameters:
-      extension: ms-python.python
-      runAsUser: true
+      distribution: "Ubuntu-22.04"
   - name: install-vscode-extension
     parameters:
       extension: ms-vscode-remote.vscode-remote-extensionpack
@@ -38,10 +23,6 @@ tasks:
   - name: install-vscode-extension
     parameters:
       extension: ms-vscode.powershell
-      runAsUser: true
-  - name: install-vscode-extension
-    parameters:
-      extension: donjayamanne.python-environment-manager
       runAsUser: true
   - name: install-vscode-extension
     parameters:
