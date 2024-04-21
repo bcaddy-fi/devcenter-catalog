@@ -26,7 +26,7 @@ tasks:
       runAsUser: true
   - name: install-wsl2
     parameters:
-      distribution: "Ubuntu-22.04"
+      distribution: Ubuntu-22.04
   - name: install-vscode-extension
     parameters:
       extension: ms-python.python

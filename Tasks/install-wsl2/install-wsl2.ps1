@@ -44,9 +44,10 @@ Enable-WindowsOptionalFeature -online -FeatureName "VirtualMachinePlatform" -nor
 wsl.exe --install --no-distribution
 Write-Host "WSL2 prerequirements installed"
 
-# Check if the distribution is in the list of supported distributions
-if ($Distributions -notcontains $Ditribution) {
-    Write-Host "The distribution $Ditribution is not supported"
+# if distribution not included in the supported distributions, exit
+
+if ($Distributions -notcontains $Distribution) {
+    Write-Host "The distribution $Distribution is not supported"
     exit 1
 }
 
@@ -79,7 +80,7 @@ Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
 # Run the WSL2 installation command
 Merge-DevBoxCustomizationUserScript "Write-Host 'Install WSL2'"
 Merge-DevBoxCustomizationUserScript "pwsh.exe -Command 'Set-ExecutionPolicy Bypass -Scope Process -Force'"
-Merge-DevBoxCustomizationUserScript "wsl --install -d $Ditribution"
+Merge-DevBoxCustomizationUserScript "wsl --install -d $($Ditribution)"
 Merge-DevBoxCustomizationUserScript "Write-Host 'WSL2 Installed'"
 # Update the PATH environment variable
 Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
