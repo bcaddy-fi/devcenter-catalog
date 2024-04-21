@@ -1,7 +1,10 @@
 param(
     [Parameter()]
-    [string]$Ditribution
+    [string]$Distribution
  )
+
+# Start the transcript log
+Start-Transcript -Path C:\wsl-task-customization.log -Append -IncludeInvocationHeader
 
 # Array of WSL2 supported distributions
 $Distributions = @(
@@ -42,6 +45,7 @@ Import-Module -Name "DISM"
 Enable-WindowsOptionalFeature -online -FeatureName "Microsoft-Windows-Subsystem-Linux" -norestart
 Enable-WindowsOptionalFeature -online -FeatureName "VirtualMachinePlatform" -norestart
 wsl.exe --install --no-distribution
+wsl.exe --install --no-distribution
 Write-Host "WSL2 prerequirements installed"
 
 # if distribution not included in the supported distributions, exit
@@ -80,7 +84,7 @@ Merge-DevBoxCustomizationUserScript "Write-Host 'Powershell 7 Installed'"
 # Run the WSL2 installation command
 Merge-DevBoxCustomizationUserScript "Write-Host 'Install WSL2'"
 Merge-DevBoxCustomizationUserScript "pwsh.exe -Command 'Set-ExecutionPolicy Bypass -Scope Process -Force'"
-Merge-DevBoxCustomizationUserScript "wsl --install -d $($Ditribution)"
+Merge-DevBoxCustomizationUserScript "wsl --install -d $($Distribution)"
 Merge-DevBoxCustomizationUserScript "Write-Host 'WSL2 Installed'"
 # Update the PATH environment variable
 Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
