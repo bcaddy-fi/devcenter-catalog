@@ -17,8 +17,8 @@ tasks:
   - name: powershell
     parameters:
       command: |
-        # Install VSCode extensions (for code-insiders)
         code-insiders --install-extension ms-python.python
+        code-insiders --install-extension ms-vscode-remote.vscode-remote-extensionpack;
       runAsUser: true
   - name: install-vscode-extension
     parameters:

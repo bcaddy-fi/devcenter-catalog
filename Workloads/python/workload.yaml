@@ -1,61 +1,68 @@
 $schema: "1.0"
 name: "python-devbox-customization"
 tasks:
-  - name: winget
+  - name: winget-package
     parameters:
       package: Git.Git
-  - name: winget
+  - name: winget-package
     parameters:
       package: XP8LFCZM790F6B
       fromMSStore: true
       runAsUser: true
-  - name: winget
+  - name: winget-package
     parameters:
       package: 9PJPW5LDXLZ5
       fromMSStore: true
       runAsUser: true
-  - name: winget
+  - name: winget-package
     parameters:
       package: 9NRWMJP3717K
       fromMSStore: true
       runAsUser: true
-  - name: winget
+  - name: winget-package
     parameters:
       package: 9NCVDN91XZQP
       fromMSStore: true
       runAsUser: true
-  - name: powershell
+  - name: install-wsl2
     parameters:
-      command: |
-        # Install Python packages
-        python.exe -m pip install --upgrade pip;
-        pip install numpy pandas
+      distribution: "Ubuntu-22.04"
+  - name: install-vscode-extension
+    parameters:
+      extension: ms-python.python
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: ms-vscode-remote.vscode-remote-extensionpack
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: ms-vscode.powershell
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: donjayamanne.python-environment-manager
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: github.copilot
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: github.copilot-chat
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: github.vscode-pull-request-github
+      runAsUser: true
+  - name: install-vscode-extension
+    parameters:
+      extension: github.remotehub
       runAsUser: true
   - name: powershell
     parameters:
       command: |
-        # Install WSL2 distros
-        wsl --install -d Ubuntu-22.04
-      runAsUser: true
-  - name: powershell
-    parameters:
-      command: |
-        # Install VSCode extensions (for code-insiders)
-        code-insiders --install-extension ms-python.python;
-        code-insiders --install-extension ms-vscode-remote.vscode-remote-extensionpack;
-        code-insiders --install-extension ms-vscode.powershell;
-        code-insiders --install-extension donjayamanne.python-environment-manager;
-        code-insiders --install-extension github.copilot;
-        code-insiders --install-extension github.copilot-chat;
-        code-insiders --install-extension github.vscode-pull-request-github;
-        code-insiders --install-extension github.remotehub
-      runAsUser: true
-  - name: powershell
-    parameters:
-      command: |
-        # Create folder for VSCode Projects
         New-Item -Path "C:\Projects" -ItemType Directory
-        # Use dark theme in Windows
         Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0 -Type Dword -Force
         Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme -Value 0 -Type Dword -Force
       runAsUser: true

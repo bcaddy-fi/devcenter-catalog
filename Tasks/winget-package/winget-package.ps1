@@ -60,8 +60,8 @@ if ($RunAsUser -eq "true") {
         Merge-DevBoxCustomizationUserScript "Write-host 'Updating PATH'"
         Merge-DevBoxCustomizationUserScript '$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")'
         # Get the name of the package from the ID
-        Merge-DevBoxCustomizationUserScript "`$PackageName = (Get-WinGetPackage -id $($Package)).Name"
-        Merge-DevBoxCustomizationUserScript "Write-host 'Installing WinGet Package: ' `$PackageName"
+        Merge-DevBoxCustomizationUserScript '$PackageName = (Get-WinGetPackage -id ' + "$($Package)).Name"
+        Merge-DevBoxCustomizationUserScript 'Write-host "Installing WinGet Package: " $PackageName'
         # Install the package from the MS Store if specified, otherwise install from the default source
         if ($FromMSStore -eq "true") {
             Merge-DevBoxCustomizationUserScript "Install-WinGetPackage -Id $($Package) -Source msstore"
