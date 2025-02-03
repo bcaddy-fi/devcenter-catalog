@@ -140,15 +140,15 @@ function Install-DevBoxCustomizationPS7 {
 
 function Install-DevBoxCustomizationWinGet {
     # Install the WinGet Package Manager
-    if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "122108610")) {
+    if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "117106910")) {
         try {
             Write-Host "Installing WinGet Package Manager for user"
             Invoke-WebRequest -Uri $UriWinGet -OutFile $WinGet
             Invoke-WebRequest -Uri $UriVCLibs -OutFile $VCLibs
             Invoke-WebRequest -Uri $UriUIXaml -OutFile $UIXaml
-            Add-AppxPackage $VCLibs
-            Add-AppxPackage $UIXaml
-            Add-AppxPackage $WinGet
+            Add-AppxPackage $VCLibs -ForceApplicationShutdown
+            Add-AppxPackage $UIXaml -ForceApplicationShutdown
+            Add-AppxPackage $WinGet -ForceApplicationShutdown
             Start-Sleep -Seconds 10
             Write-Host "WinGet for user Installed"
             # Update PATH after install
