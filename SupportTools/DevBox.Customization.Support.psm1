@@ -159,7 +159,18 @@ function Install-DevBoxCustomizationWinGet {
         }
     }
     else {
-        Write-Host "WinGet Package Manager is already installed"
+        if (!(Get-WinGetPackage -ErrorAction SilentlyContinue)) {
+            try {
+                Write-Host "WinGet Package Manager not operational... fixing"
+                Repair-WinGetPackageManager -Latest -Force
+                Write-Host "WinGet Package Manager fixed"
+                $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            }
+            catch {
+                Write-Error $_
+            }
+        }
+        Write-Host "WinGet Package Manager is already installed and operational"
     }
 }
 
