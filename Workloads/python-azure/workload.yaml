@@ -24,6 +24,11 @@ tasks:
       package: 9NCVDN91XZQP
       fromMSStore: true
       runAsUser: true
+  - name: winget-package
+    parameters:
+      package: 9PNRBTZXMB4Z
+      fromMSStore: true
+      runAsUser: true
   - name: install-wsl2
     parameters:
       distribution: Ubuntu-22.04
