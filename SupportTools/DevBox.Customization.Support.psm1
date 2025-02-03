@@ -143,12 +143,12 @@ function Install-DevBoxCustomizationWinGet {
     if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "124252000")) {
         try {
             Write-Host "Installing WinGet Package Manager for user"
-            Invoke-WebRequest -Uri $UriWinGet -OutFile $WinGet
             Invoke-WebRequest -Uri $UriVCLibs -OutFile $VCLibs
             Invoke-WebRequest -Uri $UriUIXaml -OutFile $UIXaml
-            Add-AppxPackage $VCLibs -ForceApplicationShutdown
-            Add-AppxPackage $UIXaml -ForceApplicationShutdown
-            Add-AppxPackage $WinGet -ForceApplicationShutdown
+            Invoke-WebRequest -Uri $UriWinGet -OutFile $WinGet
+            Add-AppxPackage $VCLibs
+            Add-AppxPackage $UIXaml
+            Add-AppxPackage $WinGet
             Start-Sleep -Seconds 10
             Write-Host "WinGet for user Installed"
             # Update PATH after install
@@ -159,17 +159,6 @@ function Install-DevBoxCustomizationWinGet {
         }
     }
     else {
-        if (!(Get-WinGetPackage -ErrorAction SilentlyContinue)) {
-            try {
-                Write-Host "WinGet Package Manager not operational... fixing"
-                Repair-WinGetPackageManager -Latest -Force
-                Write-Host "WinGet Package Manager fixed"
-                $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-            }
-            catch {
-                Write-Error $_
-            }
-        }
         Write-Host "WinGet Package Manager is already installed and operational"
     }
 }
