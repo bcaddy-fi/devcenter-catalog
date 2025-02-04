@@ -137,32 +137,6 @@ function Install-DevBoxCustomizationPS7 {
         Write-Host "PowerShell 7 is already installed"
     }
 }
-
-function Install-DevBoxCustomizationWinGet {
-    # Install the WinGet Package Manager
-    if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "124252000")) {
-        try {
-            Write-Host "Installing WinGet Package Manager for user"
-            Invoke-WebRequest -Uri $UriVCLibs -OutFile $VCLibs
-            Invoke-WebRequest -Uri $UriUIXaml -OutFile $UIXaml
-            Invoke-WebRequest -Uri $UriWinGet -OutFile $WinGet
-            Add-AppxPackage $VCLibs
-            Add-AppxPackage $UIXaml
-            Add-AppxPackage $WinGet
-            Start-Sleep -Seconds 10
-            Write-Host "WinGet for user Installed"
-            # Update PATH after install
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        } 
-        catch {
-            Write-Error $_
-        }
-    }
-    else {
-        Write-Host "WinGet Package Manager is already installed and operational"
-    }
-}
-
 function Install-DevBoxCustomizationWinGetModule {
     # Check in the current user is SYSTEM
     $psInstallScope = "CurrentUser"
@@ -188,3 +162,31 @@ function Install-DevBoxCustomizationWinGetModule {
     }
     return 0
 }
+
+function Install-DevBoxCustomizationWinGet {
+    # Install the WinGet Package Manager
+    if ((!(Get-AppxPackage Microsoft.DesktopAppInstaller -ErrorAction SilentlyContinue) -or (Get-AppxPackage Microsoft.DesktopAppInstaller).Version.ToString().Replace(".","") -lt "124252000")) {
+        try {
+            Write-Host "Installing WinGet Package Manager for user"
+            #Invoke-WebRequest -Uri $UriVCLibs -OutFile $VCLibs
+            #Invoke-WebRequest -Uri $UriUIXaml -OutFile $UIXaml
+            #Invoke-WebRequest -Uri $UriWinGet -OutFile $WinGet
+            #Add-AppxPackage $VCLibs
+            #Add-AppxPackage $UIXaml
+            #Add-AppxPackage $WinGet
+            Install-DevBoxCustomizationWinGetModule
+            Repair-WingetPackageManager -Force -Latest
+            Start-Sleep -Seconds 10
+            Write-Host "WinGet for user Installed"
+            # Update PATH after install
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        } 
+        catch {
+            Write-Error $_
+        }
+    }
+    else {
+        Write-Host "WinGet Package Manager is already installed and operational"
+    }
+}
+
